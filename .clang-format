@@ -1,2 +1,9 @@
 BasedOnStyle: LLVM
+
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: true
+ColumnLimit: 130
 IndentWidth: 4
+PointerAlignment: Left
+Standard: c++20
