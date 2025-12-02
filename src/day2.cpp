@@ -44,8 +44,12 @@ std::vector<id> filter_ids(const range& ran, FilterFunc filter) {
 bool has_repeated_patterns(id number) {
     std::string num_str = std::to_string(number);
     const size_t len = num_str.length();
-    if (num_str.substr(0, len / 2) == num_str.substr(len / 2, len - len / 2)) {
-        return true;
+    for (size_t pattern_len = 1; pattern_len <= len / 2; ++pattern_len) {
+        const auto substr = num_str.substr(0, pattern_len);
+        size_t occurrences = aoc::utils::strings::count_occurrences(num_str, substr);
+        if (occurrences * pattern_len == len) {
+            return true;
+        }
     }
     return false;
 }

@@ -23,4 +23,14 @@ std::vector<std::string> split_lines(std::string_view str) {
     return split(str, "\n");
 }
 
+size_t count_occurrences(std::string_view str, std::string_view sub) {
+    size_t count = 0;
+    size_t pos = 0;
+    while ((pos = str.find(sub, pos)) != std::string_view::npos) {
+        ++count;
+        pos += sub.length();
+    }
+    return count;
+}
+
 } // namespace aoc::utils::strings
