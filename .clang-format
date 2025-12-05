@@ -7,4 +7,5 @@ ColumnLimit: 130
 IndentWidth: 4
 NamespaceIndentation: All
 PointerAlignment: Left
+SpaceBeforeParens: Never
 Standard: c++20
