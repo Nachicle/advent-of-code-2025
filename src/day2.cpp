@@ -8,12 +8,12 @@
 
 namespace aoc {
     using id = std::size_t;
-    using range = std::pair<id, id>;
+    using id_range = std::pair<id, id>;
 } // namespace aoc
 
-std::vector<aoc::range> parse_ranges(std::string_view input_string) {
+std::vector<aoc::id_range> parse_ranges(std::string_view input_string) {
     std::vector<std::string> range_strings = aoc::utils::strings::split(input_string, ",");
-    std::vector<aoc::range> ranges;
+    std::vector<aoc::id_range> ranges;
     for (const auto& range : range_strings) {
         if (!range.empty()) {
             const auto parts = aoc::utils::strings::split(range, "-");
@@ -27,13 +27,13 @@ std::vector<aoc::range> parse_ranges(std::string_view input_string) {
     return ranges;
 }
 
-std::vector<aoc::range> get_puzzle_input(int argc, char const* argv[]) {
+std::vector<aoc::id_range> get_puzzle_input(int argc, char const* argv[]) {
     const auto input_path = aoc::utils::inputs::get_input_path(argc, argv);
     const auto input_string = aoc::utils::inputs::read_input(input_path);
     return parse_ranges(input_string);
 }
 
-std::vector<aoc::id> generate_ids(aoc::range range) {
+std::vector<aoc::id> generate_ids(aoc::id_range range) {
     const auto& [start, end] = range;
     std::vector<aoc::id> ids;
     for (auto i = start; i <= end; ++i) {

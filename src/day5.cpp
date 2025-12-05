@@ -2,16 +2,18 @@
 #include "aoc/utils/ranges.hpp"
 #include "aoc/utils/strings.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <print>
+#include <set>
 
 namespace aoc {
     using id = std::uint64_t;
-    using range = std::pair<id, id>;
+    using id_range = aoc::range<id>;
 } // namespace aoc
 
 auto parse_ranges(const std::vector<std::string>& lines) {
-    std::vector<aoc::range> ranges;
+    std::vector<aoc::id_range> ranges;
     for (const auto& line : lines) {
         assert(!line.empty());
         const auto parts = aoc::utils::strings::split(line, "-");
@@ -56,6 +58,32 @@ int main(int argc, char const* argv[]) {
             fresh_ingredients++;
         }
     }
-    std::print("Fresh ingredients: {}", fresh_ingredients);
+    std::println("Fresh ingredients: {}", fresh_ingredients);
+
+    auto sorted_ranges = ranges;
+    std::sort(sorted_ranges.begin(), sorted_ranges.end(),
+              [](const aoc::id_range& r1, const aoc::id_range& r2) { return r1.first < r2.first; });
+
+    std::vector<aoc::id_range> merged_ranges;
+    std::vector<aoc::id_range> already_merged;
+    for (const auto& range : sorted_ranges) {
+        aoc::id_range merged_range = range;
+        if (std::ranges::contains(already_merged, range)) {
+            continue;
+        }
+        for (const auto& other_range : sorted_ranges) {
+            if (aoc::utils::ranges::overlaps(merged_range, other_range)) {
+                merged_range = aoc::utils::ranges::merge_ranges(merged_range, other_range);
+                already_merged.push_back(other_range);
+            }
+        }
+        merged_ranges.emplace_back(merged_range);
+    }
+
+    std::uint64_t total_fresh_ids = 0;
+    for (const auto& [start, end] : merged_ranges) {
+        total_fresh_ids += (end - start + 1);
+    }
+    std::println("Total fresh ids: {}", total_fresh_ids);
     return 0;
 }
