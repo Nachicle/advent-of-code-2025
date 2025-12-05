@@ -11,3 +11,6 @@ target_include_directories(day2 PRIVATE include)
 
 add_executable(day3 src/day3.cpp)
 target_include_directories(day3 PRIVATE include)
+
+add_executable(day4 src/day4.cpp)
+target_include_directories(day4 PRIVATE include)
