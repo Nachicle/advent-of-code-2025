@@ -16,11 +16,14 @@ auto parse_grid(const std::vector<std::string>& lines) {
     aoc::grid grid;
     for (const auto& line : lines) {
         aoc::row row;
-        for (const auto& ch : line) {
-            if (ch == static_cast<char>(aoc::location::empty)) {
+        for (const auto& character : line) {
+            switch (character) {
+            case static_cast<char>(aoc::location::empty):
                 row.push_back(aoc::location::empty);
-            } else if (ch == static_cast<char>(aoc::location::roll)) {
+                break;
+            case static_cast<char>(aoc::location::roll):
                 row.push_back(aoc::location::roll);
+                break;
             }
         }
         grid.push_back(row);
@@ -38,8 +41,8 @@ auto get_puzzle_input(int argc, char const* argv[]) {
 auto count_rolls(const aoc::grid& grid) {
     std::uint64_t rolls_count = 0;
     for (const auto& row : grid) {
-        for (const auto& loc : row) {
-            if (loc == aoc::location::roll) {
+        for (const auto& column : row) {
+            if (column == aoc::location::roll) {
                 rolls_count++;
             }
         }
@@ -47,18 +50,19 @@ auto count_rolls(const aoc::grid& grid) {
     return rolls_count;
 }
 
-auto get_subgrid(const aoc::grid& grid, std::int64_t start_row, std::int64_t start_col, std::int64_t end_row,
-                 std::int64_t end_col) {
+auto get_subgrid(const aoc::grid& grid, std::int64_t start_row, std::int64_t start_column, std::int64_t end_row,
+                 std::int64_t end_column) {
     aoc::grid result;
-    const aoc::grid subgrid(grid.begin() + start_row, grid.begin() + end_row + 1);
-    for (const auto& row : subgrid) {
-        result.push_back(aoc::row(row.begin() + start_col, row.begin() + end_col + 1));
+    const aoc::grid subgrid_rows(grid.begin() + start_row, grid.begin() + end_row + 1);
+    for (const auto& row : subgrid_rows) {
+        result.push_back(aoc::row(row.begin() + start_column, row.begin() + end_column + 1));
     }
     return result;
 }
 
-auto get_accessible_locations(const aoc::grid& grid) {
-    std::uint64_t accessible_locations_count = 0;
+auto pick_available_rolls(const aoc::grid& grid) {
+    std::uint64_t picked_rolls = 0;
+    aoc::grid after_grid = grid;
     for (std::int64_t row_idx = 0; row_idx < grid.size(); ++row_idx) {
         for (std::int64_t col_idx = 0; col_idx < grid[row_idx].size(); ++col_idx) {
             if (grid[row_idx][col_idx] == aoc::location::roll) {
@@ -67,18 +71,25 @@ auto get_accessible_locations(const aoc::grid& grid) {
                 const auto end_x = std::min(row_idx + 1, static_cast<std::int64_t>(grid.size() - 1));
                 const auto end_y = std::min(col_idx + 1, static_cast<std::int64_t>(grid[row_idx].size() - 1));
                 const auto subgrid = get_subgrid(grid, start_x, start_y, end_x, end_y);
-                std::uint64_t adjacent_roll_locations = count_rolls(subgrid);
+                const auto adjacent_roll_locations = count_rolls(subgrid);
                 if (adjacent_roll_locations <= 4) {
-                    accessible_locations_count++;
+                    picked_rolls++;
+                    after_grid[row_idx][col_idx] = aoc::location::empty;
                 }
             }
         }
     }
-    return accessible_locations_count;
+    return std::make_tuple(picked_rolls, after_grid);
 }
 
 int main(int argc, char const* argv[]) {
-    const auto grid = get_puzzle_input(argc, argv);
-    std::print("Accessible locations: {}\n", get_accessible_locations(grid));
+    auto grid = get_puzzle_input(argc, argv);
+    std::uint64_t picked_rolls;
+    std::uint64_t total_picked_rolls = 0;
+    do {
+        std::tie(picked_rolls, grid) = pick_available_rolls(grid);
+        total_picked_rolls += picked_rolls;
+    } while (picked_rolls > 0);
+    std::print("Total picked rolls: {}", total_picked_rolls);
     return 0;
 }
