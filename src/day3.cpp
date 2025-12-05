@@ -30,23 +30,20 @@ auto get_puzzle_inputs(int argc, char const* argv[]) {
     return parse_banks(input_string);
 }
 
-auto find_largest_joltage(const aoc::bank& bank) {
-    auto largest_left_battery = std::max_element(bank.begin(), bank.end());
-    if (largest_left_battery == bank.end() - 1) {
-        const auto largest_right_battery = largest_left_battery;
-        largest_left_battery = std::max_element(bank.begin(), largest_right_battery);
-        return *largest_left_battery * 10 + *largest_right_battery;
-    } else {
-        const auto largest_right_battery = std::max_element(largest_left_battery + 1, bank.end());
-        return *largest_left_battery * 10 + *largest_right_battery;
+std::uint64_t find_largest_joltage(const auto bank_begin, const auto bank_end, std::uint64_t number_of_batteries = 2) {
+    auto largest_left_battery = std::max_element(bank_begin, bank_end - (number_of_batteries - 1));
+    if (number_of_batteries == 1) {
+        return *largest_left_battery;
     }
+    auto right_sum = find_largest_joltage(largest_left_battery + 1, bank_end, number_of_batteries - 1);
+    return *largest_left_battery * std::pow(10, number_of_batteries - 1) + right_sum;
 }
 
 int main(int argc, char const* argv[]) {
     const auto banks = get_puzzle_inputs(argc, argv);
     aoc::battery total_joltage = 0;
     for (const auto& bank : banks) {
-        total_joltage += find_largest_joltage(bank);
+        total_joltage += find_largest_joltage(bank.begin(), bank.end(), 12);
     }
     std::print("Total joltage: {}\n", total_joltage);
     return 0;
